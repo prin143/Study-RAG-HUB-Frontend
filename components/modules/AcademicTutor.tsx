@@ -54,6 +54,8 @@ export default function AcademicTutor({ documents, onSourcesUpdate, onOpenInspec
   const [error, setError] = useState<string | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [backendOnline, setBackendOnline] = useState<boolean | null>(null);
+  /** null = All Documents (general mode); string = exact filename to scope RAG search */
+  const [selectedDocName, setSelectedDocName] = useState<string | null>(null);
 
   const chatEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -82,7 +84,12 @@ export default function AcademicTutor({ documents, onSourcesUpdate, onOpenInspec
     setIsLoading(true);
 
     try {
-      const res = await askQuestion({ question, study_mode: studyMode });
+      const res = await askQuestion({
+        question,
+        study_mode: studyMode,
+        // Only include the field when a specific doc is selected
+        ...(selectedDocName ? { document_filename: selectedDocName } : {}),
+      });
       setMessages((prev) =>
         prev.map((m) =>
           m.isLoading
@@ -107,7 +114,7 @@ export default function AcademicTutor({ documents, onSourcesUpdate, onOpenInspec
       setIsLoading(false);
       setTimeout(() => inputRef.current?.focus(), 50);
     }
-  }, [input, isLoading, studyMode, onSourcesUpdate]);
+  }, [input, isLoading, studyMode, selectedDocName, onSourcesUpdate]);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); }
@@ -129,7 +136,7 @@ export default function AcademicTutor({ documents, onSourcesUpdate, onOpenInspec
     }
   };
 
-  const activeDoc = documents.find((d) => d.status === "ready");
+  const readyDocs = documents.filter((d) => d.status === "ready");
 
   return (
     /* ── Outer: fills the flex column given by page.tsx ──
@@ -171,13 +178,33 @@ export default function AcademicTutor({ documents, onSourcesUpdate, onOpenInspec
           </span>
         </div>
 
-        {/* Active doc chip */}
-        {activeDoc && (
-          <div style={{ display: "flex", alignItems: "center", gap: "4px", padding: "3px 9px", background: "var(--pastel-mint)", border: "1px solid var(--pastel-mint-d)", borderRadius: "var(--radius-pill)", flexShrink: 0 }}>
-            <FileText size={9} color="var(--success)" />
-            <span style={{ fontSize: "10px", color: "var(--success)", fontWeight: 700, maxWidth: "110px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-              {activeDoc.name}
-            </span>
+        {/* ── Document selector dropdown ── */}
+        {readyDocs.length > 0 && (
+          <div style={{ display: "flex", alignItems: "center", gap: "4px", flexShrink: 0 }}>
+            <FileText size={10} color={selectedDocName ? "var(--success)" : "var(--text-muted)"} />
+            <select
+              id="doc-scope-select"
+              value={selectedDocName ?? ""}
+              onChange={(e) => setSelectedDocName(e.target.value || null)}
+              style={{
+                fontSize: "11px",
+                fontWeight: 700,
+                color: selectedDocName ? "var(--success)" : "var(--text-secondary)",
+                background: selectedDocName ? "var(--pastel-mint)" : "var(--bg-elevated)",
+                border: `1px solid ${selectedDocName ? "var(--pastel-mint-d)" : "var(--border)"}`,
+                borderRadius: "var(--radius-pill)",
+                padding: "3px 8px",
+                cursor: "pointer",
+                maxWidth: "160px",
+                outline: "none",
+                transition: "all 0.16s ease",
+              }}
+            >
+              <option value="">All Documents</option>
+              {readyDocs.map((d) => (
+                <option key={d.id} value={d.name}>{d.name}</option>
+              ))}
+            </select>
           </div>
         )}
 

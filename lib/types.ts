@@ -50,6 +50,9 @@ export interface ChatMessage {
 export interface AskRequest {
   question: string;
   study_mode: StudyMode;
+  /** Optional: restrict RAG search to a single uploaded document by its exact filename.
+   *  When undefined/null the backend searches all uploaded vectors (general mode). */
+  document_filename?: string | null;
 }
 
 export interface AskResponse {
