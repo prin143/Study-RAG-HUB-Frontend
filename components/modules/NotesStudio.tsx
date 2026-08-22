@@ -64,7 +64,7 @@ export default function NotesStudio() {
     try {
       const res = await askQuestion({ question: `Summarize in 2-3 bullet points:\n\n${activeNote.content}`, study_mode: "summary" });
       updateNote({ aiSummary: res.answer });
-    } catch { updateNote({ aiSummary: "⚠️ Backend offline — start FastAPI at http://127.0.0.1:8000" }); }
+    } catch { updateNote({ aiSummary: `⚠️ Backend offline — start FastAPI at ${process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000"}` }); }
     finally { setIsAI(false); }
   };
 

@@ -126,7 +126,7 @@ export default function AdminDashboard() {
             {
               icon: Server, label: "FastAPI Backend",
               status: healthStatus === "checking" ? "checking" : healthStatus === "online" ? "online" : "offline",
-              detail: healthStatus === "checking" ? "Connecting…" : "http://127.0.0.1:8000 · 12ms",
+              detail: healthStatus === "checking" ? "Connecting…" : `${process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000"} · 12ms`,
             },
             {
               icon: Database, label: "ChromaDB Vectors",

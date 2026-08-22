@@ -4,7 +4,7 @@
 
 import type { AskRequest, AskResponse, UploadResponse } from "./types";
 
-const API_BASE = "http://127.0.0.1:8000";
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 
 // ─── Upload Document ───────────────────────────────────────
 
@@ -57,7 +57,7 @@ export async function uploadDocument(
     });
 
     xhr.addEventListener("error", () => {
-      reject(new Error("Backend Offline — cannot reach http://127.0.0.1:8000"));
+      reject(new Error(`Backend Offline — cannot reach ${API_BASE}`));
     });
 
     xhr.addEventListener("timeout", () => {

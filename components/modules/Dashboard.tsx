@@ -89,7 +89,7 @@ export default function Dashboard({ documents, onModuleChange, onSourcesUpdate }
       setQuickAnswer(res.answer.slice(0, 320) + (res.answer.length > 320 ? "…" : ""));
       if (res.sources?.length) onSourcesUpdate(res.sources);
     } catch {
-      setQuickAnswer("⚠️ Backend offline — start FastAPI at http://127.0.0.1:8000");
+      setQuickAnswer(`⚠️ Backend offline — start FastAPI at ${process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000"}`);
     } finally {
       setQuickLoading(false);
     }

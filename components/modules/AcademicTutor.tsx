@@ -65,7 +65,7 @@ export default function AcademicTutor({ documents, onSourcesUpdate, onOpenInspec
 
   // Probe backend health on mount
   useEffect(() => {
-    fetch("http://127.0.0.1:8000/health", { signal: AbortSignal.timeout(3000) })
+    fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000"}/health`, { signal: AbortSignal.timeout(3000) })
       .then(() => setBackendOnline(true))
       .catch(() => setBackendOnline(false));
   }, []);
@@ -97,12 +97,12 @@ export default function AcademicTutor({ documents, onSourcesUpdate, onOpenInspec
       setMessages((prev) =>
         prev.map((m) =>
           m.isLoading
-            ? { ...m, content: `❌ **Backend Error**\n\n${msg}\n\nEnsure FastAPI is running at \`http://127.0.0.1:8000\``, isLoading: false }
+            ? { ...m, content: `❌ **Backend Error**\n\n${msg}\n\nEnsure FastAPI is running at \`${process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000"}\``, isLoading: false }
             : m
         )
       );
       setBackendOnline(false);
-      setError("Backend offline — start FastAPI at http://127.0.0.1:8000");
+      setError(`Backend offline — start FastAPI at ${process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000"}`); 
     } finally {
       setIsLoading(false);
       setTimeout(() => inputRef.current?.focus(), 50);
@@ -122,7 +122,7 @@ export default function AcademicTutor({ documents, onSourcesUpdate, onOpenInspec
   const retryConnection = async () => {
     setError(null);
     try {
-      await fetch("http://127.0.0.1:8000/health", { signal: AbortSignal.timeout(3000) });
+      await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000"}/health`, { signal: AbortSignal.timeout(3000) });
       setBackendOnline(true);
     } catch {
       setError("Still offline — make sure FastAPI is running.");
